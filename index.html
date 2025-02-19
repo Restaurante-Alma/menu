@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alma - By Chef Américo Vinhas</title>
+
+  <!-- PapaParse (para interpretar CSV) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+  <!-- Google Translate API -->
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        {pageLanguage: 'pt', includedLanguages: 'en,es,fr'},
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <style>
+    /* ==================== Paleta de Cores do Alma ==================== */
+    :root {
+      --verde-escuro: #0F3E2E;    /* Fundo do header, hover do item, etc. */
+      --cobre: #B28055;           /* Destaques (borda, texto principal de títulos, etc.) */
+      --branco: #FFFFFF;
+      --cinza-fundo: #f8f8f8;     /* Fundo global */
+      --cinza-texto: #333;        /* Texto principal */
+      --cinza-mais-claro: #f9f9f9;/* Fundo de cada item da lista */
+      --cinza-borda: #ddd;        /* Borda dos itens */
+    }
+
+    /* ==================== Estilos Globais ==================== */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--cinza-fundo);
+      color: var(--cinza-texto);
+      line-height: 1.5;
+    }
+
+    /* ==================== Cabeçalho ==================== */
+    header {
+      background-color: var(--verde-escuro);
+      color: var(--branco);
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+    }
+
+    header img {
+      position: relative;
+      max-width: 120px;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      position: relative;
+      font-size: 2rem;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    /* ==================== Dropdown de Categoria ==================== */
+    #categoryFilter {
+      width: 90%;
+      max-width: 400px;
+      margin: 15px auto;
+      padding: 10px;
+      font-size: 1rem;
+      border: 2px solid var(--cobre);
+      border-radius: 5px;
+      background-color: var(--branco);
+      color: var(--cobre);
+      display: block;
+    }
+
+    #categoryFilter:focus {
+      outline: none;
+      border-color: #9C7048; /* tom um pouco mais escuro do cobre */
+    }
+
+    /* ==================== Secções de Categoria ==================== */
+    .category {
+      margin: 15px auto;
+      padding: 15px;
+      background-color: var(--branco);
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 95%;
+    }
+
+    .category h2 {
+      color: var(--cobre);
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    /* ==================== Lista de Itens ==================== */
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      margin: 8px 0;
+      padding: 10px;
+      background-color: var(--cinza-mais-claro);
+      border-radius: 8px;
+      border: 1px solid var(--cinza-borda);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    /* Efeito hover no item */
+    li:hover {
+      background-color: var(--verde-escuro);
+      color: var(--branco);
+      transform: scale(1.03);
+    }
+
+    li span {
+      font-size: 1rem;
+    }
+
+    li .price {
+      font-weight: bold;
+      color: var(--cobre);
+    }
+
+    /* Ao hover, o preço fica branco tal como o texto */
+    li:hover .price {
+      color: var(--branco);
+    }
+
+    /* ==================== Google Translate ==================== */
+    #google_translate_element {
+      text-align: center;
+      margin: 10px;
+    }
+
+    /* ==================== Rodapé ==================== */
+    footer {
+      text-align: center;
+      padding: 10px;
+      color: #555;
+      font-size: 0.9rem;
+      background-color: #f0f0f0;
+    }
+
+    /* ==================== Responsivo ==================== */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+      #categoryFilter {
+        font-size: 0.9rem;
+      }
+      .category h2 {
+        font-size: 1rem;
+      }
+      li {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      li {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      li .price {
+        margin-top: 5px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== Cabeçalho ==================== -->
+  <header>
+    <!-- Substitui pela tua imagem/logótipo -->
+    <img src="logo-alma.png" alt="Alma - By Chef Américo Vinhas">
+    <h1>Menu Alma</h1>
+  </header>
+<!-- Secção do Menu do Dia -->
+<div id="menu-do-dia" style="text-align: center; background-color: var(--verde-escuro); color: var(--branco); padding: 20px; margin: 20px auto; border-radius: 10px; cursor: pointer;">
+  <h2 id="toggle-menu" style="color: var(--cobre);">🍽️ Menu do Dia</h2>
+  <div id="daily-menu-content">
+    <p>A carregar...</p>
+  </div>
+</div>
+
+
+  <!-- Dropdown para seleção de categoria -->
+  <div style="text-align: center;">
+    <select id="categoryFilter">
+      <option value="all">Todas as Categorias</option>
+    </select>
+  </div>
+
+  <!-- Google Translate (para turistas) -->
+  <div id="google_translate_element"></div>
+
+  <!-- Conteúdo do Menu -->
+  <main id="menu"></main>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>© Alma - By Chef Américo Vinhas <!--• <a href="https://www.brunosousa.pt" target="_blank" style="color: inherit;">Desenvolvido por Bruno Sousa</a>--></p>
+  </footer>
+
+  <!-- ==================== Script para carregar o CSV e apresentar Menu ==================== -->
+  <script>
+    // URL do CSV do Alma (Tipo,Item,Preço)
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSW5ibGpBEqMuzumK8-taOjbbUrpnOHnoNTxx5KS8UqD0V0xIacN6oyPA1mdj9yUvvzjHcYnNaayyQU/pub?output=csv';
+
+    async function loadMenu() {
+      const menu = document.getElementById('menu');
+      const categoryFilter = document.getElementById('categoryFilter');
+
+      try {
+        // Mensagem temporária
+        menu.innerHTML = <p style="text-align: center;">A carregar o menu, por favor aguarda...</p>;
+
+        const response = await fetch(sheetURL);
+        if (!response.ok) {
+          throw new Error(Erro ao carregar o Google Sheets: ${response.statusText});
+        }
+
+        const csvData = await response.text();
+
+        Papa.parse(csvData, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function (results) {
+            const items = results.data;
+
+            // Identifica as categorias únicas pelo "Tipo"
+            const categoriasUnicas = [...new Set(items.map(item => item.Tipo))];
+
+            // Preenche o dropdown
+            categoriasUnicas.forEach(cat => {
+              const option = document.createElement('option');
+              option.value = cat;
+              option.textContent = cat;
+              categoryFilter.appendChild(option);
+            });
+
+            // Função que desenha o menu (filtrado ou não)
+            function renderMenu(filtro) {
+              menu.innerHTML = ''; // limpar
+
+              // Se for "all", mostra todos os itens
+              const itemsFiltrados = (filtro === 'all')
+                ? items
+                : items.filter(item => item.Tipo === filtro);
+
+              // Agrupar por tipo (para dar um "h2" a cada tipo)
+              const tiposEncontrados = [...new Set(itemsFiltrados.map(item => item.Tipo))];
+
+              tiposEncontrados.forEach(tipo => {
+                const section = document.createElement('div');
+                section.className = 'category';
+                section.innerHTML = <h2>${tipo}</h2>;
+
+                const ul = document.createElement('ul');
+                itemsFiltrados
+                  .filter(i => i.Tipo === tipo)
+                  .forEach(i => {
+                    const li = document.createElement('li');
+                    li.innerHTML = 
+                      <span>${i.Item}</span>
+                      <span class="price">${i.Preço}</span>
+                    ;
+                    ul.appendChild(li);
+                  });
+
+                section.appendChild(ul);
+                menu.appendChild(section);
+              });
+            }
+
+            // Render inicial (todas as categorias)
+            renderMenu('all');
+
+            // Evento de mudança no dropdown
+            categoryFilter.addEventListener('change', () => {
+              renderMenu(categoryFilter.value);
+            });
+          }
+        });
+      } catch (error) {
+        menu.innerHTML = <p style="color:red; text-align: center;">Erro ao carregar o menu: ${error.message}</p>;
+      }
+    }
+
+    // Carrega o menu ao iniciar
+    loadMenu();
+    // URL do CSV específico da aba "Menu do Dia"
+const dailyMenuURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSW5ibGpBEqMuzumK8-taOjbbUrpnOHnoNTxx5KS8UqD0V0xIacN6oyPA1mdj9yUvvzjHcYnNaayyQU/pub?gid=1051148933&output=csv';
+
+async function loadDailyMenu() {
+  const dailyMenuContainer = document.getElementById('daily-menu-content');
+
+  try {
+    const response = await fetch(dailyMenuURL);
+    if (!response.ok) throw new Error(Erro ao carregar o Menu do Dia: ${response.statusText});
+
+    const csvData = await response.text();
+
+    Papa.parse(csvData, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        const items = results.data;
+        let menuHTML = '';
+
+        // Constrói a listagem do menu do dia
+        items.forEach(item => {
+          menuHTML += <p><strong>${item.Categoria}:</strong> ${item.Descrição}</p>;
+        });
+
+        dailyMenuContainer.innerHTML = menuHTML;
+      }
+    });
+  } catch (error) {
+    dailyMenuContainer.innerHTML = <p style="color:red;">Erro ao carregar o menu: ${error.message}</p>;
+  }
+}
+// Carregar o Menu do Dia ao iniciar
+// Função para esconder/mostrar o Menu do Dia ao clicar
+function toggleDailyMenu() {
+  const menuContent = document.getElementById("daily-menu-content");
+  const toggleText = document.getElementById("toggle-menu");
+
+  if (menuContent.style.display === "none") {
+    menuContent.style.display = "block";
+    toggleText.innerHTML = "🍽️ Menu do Dia";
+  } else {
+    menuContent.style.display = "none";
+    toggleText.innerHTML = "🍽️ Menu do Dia";
+  }
+}
+
+// Adiciona o evento de clique ao título do Menu do Dia
+document.getElementById("toggle-menu").addEventListener("click", toggleDailyMenu);
+
+// Função para verificar o dia da semana e carregar o Menu do Dia
+function checkAndLoadDailyMenu() {
+  const today = new Date().getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+  const dailyMenuContainer = document.getElementById('menu-do-dia');
+
+  if (today >= 1 && today <= 5) { // Segunda a Sexta
+    loadDailyMenu();
+  } else {
+    dailyMenuContainer.style.display = "none"; // Esconder aos sábados e domingos
+  }
+}
+
+// Chamar a função ao iniciar
+checkAndLoadDailyMenu();
+
+
+  </script>
+</body>
+</html>
