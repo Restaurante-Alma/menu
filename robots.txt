@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /menu.html
+Disallow: /menu-dia.html
+
+Sitemap: http://www.restaurantealma.pt/sitemap.xml

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu do Dia - Alma</title>
+
+    <!-- PapaParse para ler CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <!-- Importação das fontes -->
+    <style>
+        @font-face {
+            font-family: 'Michigan Signature';
+            src: url('MichiganSignature-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'STIX Two Text';
+            src: url('STIXTwoText-Regular.ttf') format('truetype');
+        }
+
+        /* 📌 Ajustes gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Ocupa toda a altura do ecrã */
+            width: 100vw;
+            background: var(--verde-escuro);
+            overflow: hidden; /* Evita scroll */
+        }
+
+        /* 📌 Container do menu responsivo */
+        .menu-dia-container {
+            width: 100%;
+            max-width: 1080px;
+            height: 100vh;
+            aspect-ratio: 9 / 16;
+            background: url('fundo-menu.jpg') no-repeat center center;
+            background-size: cover;
+            padding: 4% 5%; /* Reduzi o padding para otimizar espaço */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 📌 Título principal */
+        .menu-dia-title {
+            font-family: 'Michigan Signature', cursive;
+            font-size: 5.5vw; /* Reduzi um pouco para caber melhor */
+            color: #B28055;
+            text-align: center;
+            margin-bottom: 1vw; /* Reduzi espaçamento abaixo do título */
+        }
+
+        /* 📌 Lista do Menu */
+        .menu-dia-list {
+            font-family: 'STIX Two Text', serif;
+            font-size: 3vw; /* Reduzi ligeiramente */
+            color: #B28055;
+            line-height: 1.2; /* Reduzi espaçamento entre linhas */
+            text-align: center;
+        }
+
+        /* 📌 Títulos das categorias */
+        .category {
+            font-family: 'Michigan Signature', cursive;
+            font-size: 3.8vw; /* Ajustei para caber melhor */
+            font-weight: normal;
+            margin-top: 2vw; /* Reduzi o espaço entre categorias */
+            text-transform: capitalize;
+        }
+
+        /* 📌 Itens do menu */
+        .item {
+            font-size: 3vw;
+            margin-left: 1vw;
+        }
+
+        /* 📌 Rodapé */
+        .menu-footer {
+            font-family: 'STIX Two Text', serif;
+            text-align: center;
+            font-size: 2.5vw; /* Reduzi ligeiramente */
+            color: #B28055;
+            padding-bottom: 2vw;
+        }
+
+        /* 📌 Logo */
+        .menu-logo {
+            width: 20%;
+            min-width: 80px;
+            display: block;
+            margin: 15px auto;
+        }
+
+        /* 📌 Ajustes para ecrãs pequenos */
+        @media (max-width: 768px) {
+            .menu-dia-title { font-size: 6vw; }
+            .menu-dia-list { font-size: 3.5vw; }
+            .category { font-size: 4.5vw; margin-top: 3vw; }
+            .item { font-size: 3.5vw; }
+            .menu-footer { font-size: 3vw; }
+            .menu-logo { width: 25%; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 📌 Estrutura do Menu do Dia -->
+    <div class="menu-dia-container" id="menu-dia">
+        <h1 class="menu-dia-title">Menu do Dia</h1>
+        <div class="menu-dia-list" id="menu-dia-list">
+            <p>A carregar o menu...</p>
+        </div>
+        <div class="menu-footer">
+            <p>Escolha um prato do menu: carne, peixe ou vegetariano.</p>
+            <img src="logo-alma.png" alt="Alma - By Chef Américo Vinhas" class="menu-logo">
+        </div>
+    </div>
+
+    <!-- 📌 Script para carregar os dados do Google Sheets -->
+    <script>
+        const dailyMenuURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSW5ibGpBEqMuzumK8-taOjbbUrpnOHnoNTxx5KS8UqD0V0xIacN6oyPA1mdj9yUvvzjHcYnNaayyQU/pub?gid=1051148933&output=csv';
+
+        async function loadDailyMenu() {
+            const menuList = document.getElementById("menu-dia-list");
+
+            try {
+                const response = await fetch(dailyMenuURL);
+                if (!response.ok) throw new Error(`Erro ao carregar o Menu do Dia: ${response.statusText}`);
+
+                const csvData = await response.text();
+
+                Papa.parse(csvData, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function (results) {
+                        const items = results.data;
+                        let menuHTML = '';
+
+                        items.forEach(item => {
+                            menuHTML += `<p class="category">${item.Categoria}</p>`;
+                            menuHTML += `<p class="item">${item.Descrição}</p>`;
+                        });
+
+                        menuList.innerHTML = menuHTML;
+                    }
+                });
+            } catch (error) {
+                menuList.innerHTML = `<p style="color:red;">Erro ao carregar o menu: ${error.message}</p>`;
+            }
+        }
+
+        // Carregar Menu do Dia ao iniciar
+        loadDailyMenu();
+    </script>
+
+</body>
+</html>
